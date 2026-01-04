@@ -36,53 +36,52 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script>
-    const today = new Date();
-    const dayOfWeek = today.getDay(); // 0=日,1=一,...,5=五
-    const hour = today.getHours();
+ const today = new Date();
 
-    function getOpenDates() {
-      // 找最近的週五
-      let thisFriday = new Date(today);
-      thisFriday.setDate(today.getDate() + ((5 - dayOfWeek + 7) % 7));
+function getOpenDates() {
+  // 找最近週五
+  const dayOfWeek = today.getDay(); // 0=日,1=一,...,5=五
+  const thisFriday = new Date(today);
+  thisFriday.setDate(today.getDate() + ((5 - dayOfWeek + 7) % 7));
+  thisFriday.setHours(12, 0, 0, 0); // 週五中午 12:00
 
-      // 週五中午前不開放
-      if (today < new Date(thisFriday.getFullYear(), thisFriday.getMonth(), thisFriday.getDate(), 12)) {
-        return [];
-      }
+  // 如果現在時間 < 週五中午 12:00，尚未開放
+  if (today.getTime() < thisFriday.getTime()) {
+    return [];
+  }
 
-      // 開放日期區間：週六 → 下一週五
-      const start = new Date(thisFriday);
-      start.setDate(thisFriday.getDate() + 1); // 週五+1 = 週六
-      const end = new Date(thisFriday);
-      end.setDate(thisFriday.getDate() + 7); // 週五+7 = 下一週五
+  // 開放區間：週五+1(週六) → 週五+7(下一週五)
+  const start = new Date(thisFriday);
+  start.setDate(thisFriday.getDate() + 1);
+  const end = new Date(thisFriday);
+  end.setDate(thisFriday.getDate() + 7);
 
-      const dates = [];
-      let d = new Date(start);
-      while (d <= end) {
-        dates.push(new Date(d));
-        d.setDate(d.getDate() + 1);
-      }
-      return dates;
-    }
+  const dates = [];
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    // 把時間清零，避免 Flatpickr 認不出
+    dates.push(new Date(d.getFullYear(), d.getMonth(), d.getDate()));
+  }
+  return dates;
+}
 
-    const openDates = getOpenDates();
+const openDates = getOpenDates();
 
-    // 顯示提示訊息
-    const hintEl = document.getElementById("dateHint");
-    if (openDates.length === 0) {
-      hintEl.innerText = "報名尚未開放，請於每週五 12:00 開放週六至下一週五的日期。";
-    } else {
-      const start = openDates[0].toISOString().split('T')[0];
-      const end = openDates[openDates.length - 1].toISOString().split('T')[0];
-      hintEl.innerText = `本週開放日期：${start} ~ ${end}`;
-    }
+// 顯示提示訊息
+const hintEl = document.getElementById("dateHint");
+if (openDates.length === 0) {
+  hintEl.innerText = "報名尚未開放，請於每週五 12:00 開放週六至下一週五的日期。";
+} else {
+  const start = openDates[0].toISOString().split('T')[0];
+  const end = openDates[openDates.length - 1].toISOString().split('T')[0];
+  hintEl.innerText = `本週開放日期：${start} ~ ${end}`;
+}
 
-    // 初始化 Flatpickr
-    flatpickr("#datePicker", {
-      dateFormat: "Y-m-d",
-      enable: openDates,
-      disableMobile: true
-    });
+// 初始化 Flatpickr
+flatpickr("#datePicker", {
+  dateFormat: "Y-m-d",
+  enable: openDates,
+  disableMobile: true
+});
   </script>
 </body>
 </html>
