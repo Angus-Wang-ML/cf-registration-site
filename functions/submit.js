@@ -3,9 +3,7 @@ export async function onRequestPost({ request, env }) {
     const formData = await request.formData();
     const name = formData.get("name");
     const date = formData.get("date");
-    const token = formData.get("cf-turnstile-response"); // Turnstile token
-
-    console.log("Received form:", { name, date, token });
+    const token = formData.get("cf-turnstile-response");
 
     if (!name || !date || !token) {
       return new Response("請完成所有欄位與驗證", { status: 400 });
@@ -26,16 +24,13 @@ export async function onRequestPost({ request, env }) {
 
     const verifyData = await verifyResp.json();
     if (!verifyData.success) {
-      console.error("Turnstile failed:", verifyData);
       return new Response("驗證失敗，請重試", { status: 400 });
     }
 
     // 儲存到 D1
-    const result = await env.DB.prepare(
+    await env.DB.prepare(
       "INSERT INTO registrations (name, date) VALUES (?, ?)"
     ).bind(name, date).run();
-
-    console.log("Insert result:", result);
 
     return new Response(
       `報名成功！\n姓名：${name}\n日期：${date}`,
