@@ -7,7 +7,6 @@ export async function onRequestPost({ request, env }) {
 
     console.log("Received form:", { name, date, token });
 
-    // 檢查必填欄位
     if (!name || !date || !token) {
       return new Response("請完成所有欄位與驗證", { status: 400 });
     }
@@ -31,7 +30,7 @@ export async function onRequestPost({ request, env }) {
       return new Response("驗證失敗，請重試", { status: 400 });
     }
 
-    // 驗證成功 → 儲存到 D1
+    // D1 儲存
     const result = await env.DB.prepare(
       "INSERT INTO registrations (name, date) VALUES (?, ?)"
     ).bind(name, date).run();
@@ -45,9 +44,6 @@ export async function onRequestPost({ request, env }) {
 
   } catch (err) {
     console.error("Submit Error:", err);
-    return new Response(
-      "報名失敗，請稍後再試",
-      { status: 500 }
-    );
+    return new Response("報名失敗，請稍後再試", { status: 500 });
   }
 }

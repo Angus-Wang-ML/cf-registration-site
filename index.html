@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>報名網站</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
   <h1>活動報名</h1>
@@ -12,7 +13,7 @@
   <form method="POST" action="/submit">
     <label>
       選擇日期：
-      <input type="date" name="date" required />
+      <input type="text" id="datePicker" name="date" required />
     </label>
     <br /><br />
 
@@ -23,13 +24,49 @@
     <br /><br />
 
     <!-- Turnstile 驗證 -->
-    <div class="cf-turnstile" data-sitekey="0x4AAAAAACKZaNVrmDoRzhog"></div>
+    <div class="cf-turnstile" data-sitekey="你的_site_key"></div>
     <br />
 
     <button type="submit">送出報名</button>
   </form>
 
-  <!-- Turnstile JS -->
+  <p id="dateHint" style="color:red;"></p>
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script>
+    // 顯示日期選擇提示
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0=日, 1=一, ..., 5=五
+    if (dayOfWeek !== 5) {
+      document.getElementById("dateHint").innerText =
+        "報名僅於每週五開放下一週日期，請於週五再次訪問。";
+    }
+
+    // 計算下週一到下週日的日期
+    function getNextWeekDates() {
+      if (dayOfWeek !== 5) return []; // 非週五全部禁用
+
+      const nextWeekStart = new Date(today);
+      nextWeekStart.setDate(today.getDate() + (8 - dayOfWeek)); // 下週一
+      const nextWeekEnd = new Date(nextWeekStart);
+      nextWeekEnd.setDate(nextWeekStart.getDate() + 6); // 下週日
+
+      const dates = [];
+      let d = new Date(nextWeekStart);
+      while (d <= nextWeekEnd) {
+        dates.push(new Date(d));
+        d.setDate(d.getDate() + 1);
+      }
+      return dates;
+    }
+
+    flatpickr("#datePicker", {
+      dateFormat: "Y-m-d",
+      enable: getNextWeekDates(),
+      disableMobile: true
+    });
+  </script>
 </body>
 </html>
