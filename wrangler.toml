@@ -1,0 +1,8 @@
+name = "registration-pages"
+main = "functions"
+compatibility_date = "2026-01-04"
+
+[d1_databases]
+binding = "DB"
+database_name = "registration_db"
+database_id = "dfd3e2d2-c592-41ae-a9af-abcfda5762a4"
