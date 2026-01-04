@@ -9,17 +9,26 @@
 <body>
   <h1>活動報名</h1>
 
-  <label>
-    選擇日期：
-    <input type="date" />
-  </label>
+  <form method="POST" action="/submit">
+    <label>
+      選擇日期：
+      <input type="date" name="date" required />
+    </label>
+    <br /><br />
 
-  <label>
-    姓名：
-    <input type="text" placeholder="你的名字" />
-  </label>
+    <label>
+      姓名：
+      <input
+        type="text"
+        name="name"
+        placeholder="你的名字"
+        required
+      />
+    </label>
+    <br /><br />
 
-  <button>送出報名</button>
+    <button type="submit">送出報名</button>
+  </form>
 
   <script src="main.js"></script>
 </body>
