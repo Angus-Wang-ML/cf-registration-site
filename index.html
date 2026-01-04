@@ -24,7 +24,7 @@
     <br /><br />
 
     <!-- Turnstile 驗證 -->
-    <div class="cf-turnstile" data-sitekey="你的_site_key"></div>
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAACKZaNVrmDoRzhog"></div>
     <br />
 
     <button type="submit">送出報名</button>
@@ -36,35 +36,47 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script>
-    // 顯示日期選擇提示
     const today = new Date();
-    const dayOfWeek = today.getDay(); // 0=日, 1=一, ..., 5=五
-    if (dayOfWeek !== 5) {
-      document.getElementById("dateHint").innerText =
-        "報名僅於每週五開放下一週日期，請於週五再次訪問。";
-    }
+    const dayOfWeek = today.getDay(); // 0=日,1=一,...,5=五
 
-    // 計算下週一到下週日的日期
-    function getNextWeekDates() {
-      if (dayOfWeek !== 5) return []; // 非週五全部禁用
+    // 計算每週五開放下一週日期區間
+    function getOpenDates() {
+      // 找最近的週五
+      const nextFriday = new Date(today);
+      nextFriday.setDate(today.getDate() + ((5 - dayOfWeek + 7) % 7));
 
-      const nextWeekStart = new Date(today);
-      nextWeekStart.setDate(today.getDate() + (8 - dayOfWeek)); // 下週一
-      const nextWeekEnd = new Date(nextWeekStart);
-      nextWeekEnd.setDate(nextWeekStart.getDate() + 6); // 下週日
+      // 開放區間：週五到下週四
+      const startDate = new Date(nextFriday);
+      const endDate = new Date(nextFriday);
+      endDate.setDate(startDate.getDate() + 6);
 
+      // 產生日期陣列
       const dates = [];
-      let d = new Date(nextWeekStart);
-      while (d <= nextWeekEnd) {
+      let d = new Date(startDate);
+      while (d <= endDate) {
         dates.push(new Date(d));
         d.setDate(d.getDate() + 1);
       }
       return dates;
     }
 
+    const openDates = getOpenDates();
+
+    // 顯示提示訊息
+    if (openDates.length === 0) {
+      document.getElementById("dateHint").innerText =
+        "報名尚未開放，請等待每週五開放下一週日期。";
+    } else {
+      const start = openDates[0].toISOString().split('T')[0];
+      const end = openDates[openDates.length-1].toISOString().split('T')[0];
+      document.getElementById("dateHint").innerText =
+        `本週開放日期：${start} ~ ${end}`;
+    }
+
+    // 初始化 Flatpickr
     flatpickr("#datePicker", {
       dateFormat: "Y-m-d",
-      enable: getNextWeekDates(),
+      enable: openDates,
       disableMobile: true
     });
   </script>

@@ -18,7 +18,7 @@ export async function onRequestPost({ request, env }) {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
-          secret: env.TURNSTILE_SECRET, // Secret Key 綁在 Pages Function
+          secret: env.TURNSTILE_SECRET,
           response: token
         })
       }
@@ -30,7 +30,7 @@ export async function onRequestPost({ request, env }) {
       return new Response("驗證失敗，請重試", { status: 400 });
     }
 
-    // D1 儲存
+    // 儲存到 D1
     const result = await env.DB.prepare(
       "INSERT INTO registrations (name, date) VALUES (?, ?)"
     ).bind(name, date).run();
