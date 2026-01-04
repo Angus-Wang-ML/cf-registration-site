@@ -47,9 +47,47 @@
       let start, end;
 
       if (today.getTime() < thisFriday.getTime()) {
-        // 週五中午前 → 維持上一週循環日期
+        // 週五中午前 → 維持上一週循環
         const prevFriday = new Date(thisFriday);
-        prevFriday.setDate(thisFriday.getDate() - 7); // 上週五
+        prevFriday.setDate(thisFriday.getDate() - 7);
         start = new Date(prevFriday);
-        start.setDate(prevFriday.getDate() + 1); // 上週五+1 = 上週六
-        end = new Date(thisFriday); // 本
+        start.setDate(prevFriday.getDate() + 1); // 上週六
+        end = new Date(thisFriday); // 本週五
+      } else {
+        // 週五中午後 → 開放下一週
+        start = new Date(thisFriday);
+        start.setDate(thisFriday.getDate() + 1); // 本週六
+        end = new Date(thisFriday);
+        end.setDate(thisFriday.getDate() + 7); // 下週五
+      }
+
+      const dates = [];
+      let d = new Date(start);
+      while (d <= end) {
+        dates.push(new Date(d.getFullYear(), d.getMonth(), d.getDate())); // 純日期
+        d.setDate(d.getDate() + 1);
+      }
+      return dates;
+    }
+
+    const openDates = getOpenDates();
+
+    // 顯示提示訊息
+    const hintEl = document.getElementById("dateHint");
+    if (openDates.length === 0) {
+      hintEl.innerText = "報名尚未開放，請於每週五 12:00 開放日期。";
+    } else {
+      const startStr = openDates[0].toISOString().split('T')[0];
+      const endStr = openDates[openDates.length-1].toISOString().split('T')[0];
+      hintEl.innerText = `可選日期：${startStr} ~ ${endStr}`;
+    }
+
+    // 初始化 Flatpickr
+    flatpickr("#datePicker", {
+      dateFormat: "Y-m-d",
+      enable: openDates,
+      disableMobile: true
+    });
+  </script>
+</body>
+</html>
