@@ -35,54 +35,54 @@
   <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<script>
-const today = new Date();
-const dayOfWeek = today.getDay(); // 0=日,1=一,...,5=五
-const hour = today.getHours();
+  <script>
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0=日,1=一,...,5=五
+    const hour = today.getHours();
 
-function getOpenDates() {
-  // 找最近一個週五
-  let thisFriday = new Date(today);
-  thisFriday.setDate(today.getDate() + ((5 - dayOfWeek + 7) % 7));
+    function getOpenDates() {
+      // 找最近的週五
+      let thisFriday = new Date(today);
+      thisFriday.setDate(today.getDate() + ((5 - dayOfWeek + 7) % 7));
 
-  // 週五中午前不開放
-  if (today < new Date(thisFriday.getFullYear(), thisFriday.getMonth(), thisFriday.getDate(), 12)) {
-    return [];
-  }
+      // 週五中午前不開放
+      if (today < new Date(thisFriday.getFullYear(), thisFriday.getMonth(), thisFriday.getDate(), 12)) {
+        return [];
+      }
 
-  // 開放日期區間：下一週週一到週日
-  const start = new Date(thisFriday);
-  start.setDate(thisFriday.getDate() + 3); // 週五 +3 = 下週一
-  const end = new Date(start);
-  end.setDate(start.getDate() + 6); // 下週日
+      // 開放日期區間：週六 → 下一週五
+      const start = new Date(thisFriday);
+      start.setDate(thisFriday.getDate() + 1); // 週五+1 = 週六
+      const end = new Date(thisFriday);
+      end.setDate(thisFriday.getDate() + 7); // 週五+7 = 下一週五
 
-  const dates = [];
-  let d = new Date(start);
-  while (d <= end) {
-    dates.push(new Date(d));
-    d.setDate(d.getDate() + 1);
-  }
-  return dates;
-}
+      const dates = [];
+      let d = new Date(start);
+      while (d <= end) {
+        dates.push(new Date(d));
+        d.setDate(d.getDate() + 1);
+      }
+      return dates;
+    }
 
-const openDates = getOpenDates();
+    const openDates = getOpenDates();
 
-// 提示訊息
-const hintEl = document.getElementById("dateHint");
-if (openDates.length === 0) {
-  hintEl.innerText = "報名尚未開放，請於每週五 12:00 開放下一週日期。";
-} else {
-  const start = openDates[0].toISOString().split('T')[0];
-  const end = openDates[openDates.length - 1].toISOString().split('T')[0];
-  hintEl.innerText = `本週開放日期：${start} ~ ${end}`;
-}
+    // 顯示提示訊息
+    const hintEl = document.getElementById("dateHint");
+    if (openDates.length === 0) {
+      hintEl.innerText = "報名尚未開放，請於每週五 12:00 開放週六至下一週五的日期。";
+    } else {
+      const start = openDates[0].toISOString().split('T')[0];
+      const end = openDates[openDates.length - 1].toISOString().split('T')[0];
+      hintEl.innerText = `本週開放日期：${start} ~ ${end}`;
+    }
 
-// 初始化 Flatpickr
-flatpickr("#datePicker", {
-  dateFormat: "Y-m-d",
-  enable: openDates,
-  disableMobile: true
-});
-</script>
+    // 初始化 Flatpickr
+    flatpickr("#datePicker", {
+      dateFormat: "Y-m-d",
+      enable: openDates,
+      disableMobile: true
+    });
+  </script>
 </body>
 </html>
